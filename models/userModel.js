@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+// NOTE:: DANGER BELOW (donot remove or uncomment) !! 
+// Doing a require of a Review model here causes `User` model from not being available in the Review Middleware functions.
+// const Review = require('./reviewModel')
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -45,7 +48,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
     select: false,
-  }
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -53,12 +56,12 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('save', function(next) {
-  if(!this.isModified('password') || this.isNew) return next();
-// Minor hack: passwordChanged at is a sec before the JWT token was created
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  // Minor hack: passwordChanged at is a sec before the JWT token was created
   this.passwordChangedAt = Date.now() - 1000;
-  next()
-})
+  next();
+});
 
 userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
@@ -93,7 +96,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-console.log(`${resetToken} : ${this.passwordResetToken}`)
+  console.log(`${resetToken} : ${this.passwordResetToken}`);
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;

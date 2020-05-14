@@ -10,6 +10,7 @@ const app = express();
 const baseRouter = require('./routes');
 const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
+const reviewRouter = require('./routes/reviews');
 const authRouter = require('./routes/auth');
 
 const { notFoundHandler } = require('./controllers');
@@ -63,6 +64,7 @@ app.use('/api/', apiLimiter); // only apply to requests that begin with /api/
 app.use('/api/v1', baseRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/auth', authRouter);
 
 // Not found route handler

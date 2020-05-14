@@ -4,28 +4,36 @@ const router = express.Router();
 const {
   createUser,
   getAllUsers,
-  getUserById,
-  updateUserById,
-  deleteUserById,
+  getUser,
+  updateUser,
+  deleteUser,
   updateMe,
-  deleteMe
+  deleteMe,
+  getMe
 } = require('../controllers/userController');
 const { protect, restrictTo } = require('../controllers/authController');
 
-router.route('/updateMe').patch(protect, updateMe) 
-router.route('/deleteMe').delete(protect, deleteMe) 
-//router.patch('/updateMe', protect, updateMe);
+// protects all routes that come after this middleware in this router
+router.use(protect)
 
-router.route('/').get(protect, getAllUsers).post(createUser);
+router.route('/getMe').get(getMe, getUser) 
+router.route('/updateMe').patch(updateMe) 
+router.route('/deleteMe').delete(deleteMe) 
+//router.patch('/updateMe', updateMe);
+
+// Only administrators can perform the following actions
+router.use(restrictTo(['admin']))
+
+router.route('/').get(getAllUsers).post(createUser);
 
 router
   .route('/:id')
-  .get(getUserById)
-  .patch(protect, updateUserById)
-  .delete(protect, restrictTo(['admin', 'lead-guide']), deleteUserById);
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
 
 // NOTE: REGISTERING THE PATCH REQUEST AFTER THE ABOVE DOESNT WORK!!
-// router.route('/updateMe').patch(protect, updateMe) 
+// router.route('/updateMe').patch(updateMe) 
 // : throws 'Not yet implemented'
 
 module.exports = router;

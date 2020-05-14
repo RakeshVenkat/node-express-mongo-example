@@ -1,5 +1,4 @@
 ### Notes
 
-## Q&A:
-use PM2 to restart a service in production
-JSON.parse and JSON.stringify() blocks the Event loop
+## API dcoumentation:
+https://documenter.getpostman.com/view/10855582/SzmiXGW9?version=latest#95ceb690-95ce-469e-9af8-3e6a73b2c1df

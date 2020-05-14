@@ -80,6 +80,32 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      //GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    // guides: Array,
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -105,11 +131,20 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
 // You can add more hooks or middlewares on the same event
 tourSchema.pre('save', function (next) {
   console.log('Middleware: Before save(): will save document');
   next();
 });
+// Fetch the user records and embed into tour
+// Drawback : is user's role changes from guide to leadguide, the tour also needs update!!
+/* tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides.map(async (el) => await User.findById(el));
+  this.guides = await Promise.all(guidesPromises);
+  next();
+}); */
+
 // You can have a hook on the post event as well
 tourSchema.post('save', function (doc, next) {
   console.log('Middleware: After save():');
@@ -124,6 +159,12 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({path: 'guides', select: '-__v -passwordChangedAt'});
+  next();
+});
+
 // TODO: why does this run when the update event is fired
 tourSchema.post(/^find/, function (docs, next) {
   //console.log(docs);
@@ -133,12 +174,27 @@ tourSchema.post(/^find/, function (docs, next) {
 
 // AGGREGATION MIDDLEWARE
 // Any common function that needs to be executed for all aggregation events
-tourSchema.pre('aggregate', function (next) {
+/* tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({
     $match: { secretTour: { $ne: true } },
   });
   next();
-});
+}); */
+
+// Indexes: Create indexes 
+//tourSchema.index({price: 1})
+tourSchema.index({price: 1, ratingsAverage: -1})
+tourSchema.index({slug: 1})
+tourSchema.index({ startLocation: '2dsphere' })
+
+// VIRTUAL POPULATE:: 
+// derive all the reviews for a Tour. Tour: Parent, Review: child
+// Review has the id of its parent(tour) : parent referencing
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
+})
 
 const Tour = mongoose.model('Tour', tourSchema);
 

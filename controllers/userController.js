@@ -1,45 +1,26 @@
 /* eslint-disable no-else-return */
 const User = require('../models/userModel');
-const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
+const handler = require('./handlerFactory');
 
-exports.createUser = catchAsync(async (req, res, next) => {
-  return res.status(501).send({
-    status: 'Not yet implemented',
-  });
-});
+exports.createUser = ((req, res, next) => {
+  res.status(501).json({
+    status: 'Will not be implemeted. Use the /signup instead !!'
+  })
+})
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(User.find(), req.query);
-  const users = await features.query;
-  return res.status(200).send({
-    status: 'Success',
-    length: users.length,
-    users,
-  });
-});
+exports.getAllUsers = handler.getAll(User)
 
-exports.getUserById = catchAsync(async (req, res, next) => {
-  return res.status(501).send({
-    status: 'Not yet implemented',
-  });
-});
+exports.getUser = handler.getOne(User)
 
-exports.updateUserById = catchAsync(async (req, res, next) => {
-  return res.status(501).send({
-    status: 'Not yet implemented',
-  });
-});
+exports.updateUser = handler.updateOne(User);
 
-exports.deleteUserById = catchAsync(async (req, res, next) => {
-  const result = await User.findByIdAndDelete(req.params.id);
+exports.deleteUser = handler.deleteOne(User);
 
-  return res.status(200).send({
-    status: 'Success',
-    data: result,
-  });
-});
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id
+  next()
+}
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   const filteredObj = {};
