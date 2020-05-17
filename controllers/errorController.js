@@ -1,12 +1,41 @@
 const AppError = require('../utils/appError');
 
-const sendDevError = (err, res) => {
-  err.statusCode = err.statusCode || 500;
-  return res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    error: err,
-    stack: err.stack,
+const sendDevError = (err, req, res) => {
+  console.error(err)
+  if (req.originalUrl.startsWith('/api')) {
+    err.statusCode = err.statusCode || 500;
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      error: err,
+      stack: err.stack,
+    });
+  }
+  res.status(200).render('error', {
+    title: 'Error | Something went wrong',
+    msg: err.message,
+  });
+};
+
+const sendProdError = (err, req, res) => {
+  console.error(err);
+  if (req.originalUrl.startsWith('/api')) {
+    if (err.isOperational) {
+      err.statusCode = err.statusCode || 500;
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    }
+  }
+  res.status(200).render('error', {
+    title: 'Error | Something went wrong',
+    msg:
+      'This could be a broken link!!',
+  });
+  return res.status(500).json({
+    status: 'fail',
+    message: 'something went wrong!!',
   });
 };
 
@@ -33,29 +62,14 @@ const handleJWTTokenError = () =>
 const handleJWTTokenExpiredError = () =>
   new AppError(401, 'Token is expired. Login to fetch a new one.');
 
-const sendProdError = (err, res) => {
-  console.error(err)
-  if (err.isOperational) {
-    err.statusCode = err.statusCode || 500;
-    return res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  }
-  return res.status(500).json({
-    status: 'fail',
-    message: 'something went wrong!!',
-  });
-};
-
 exports.globalErrorHandler = (err, req, res, next) => {
   const nodeEnv = process.env.NODE_ENV;
 
   if (nodeEnv === 'development') {
-    return sendDevError(err, res);
+    return sendDevError(err, req, res);
   }
   if (nodeEnv === 'production') {
-    let error = { ...err }; 
+    let error = { ...err };
     error.message = err.message;
     if (error.code === 11000) error = handleDuplicateError(err);
 
@@ -68,6 +82,6 @@ exports.globalErrorHandler = (err, req, res, next) => {
     if (error.name === 'TokenExpiredError')
       error = handleJWTTokenExpiredError();
 
-    return sendProdError(error, res);
+    return sendProdError(error, req, res);
   }
 };

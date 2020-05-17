@@ -38,6 +38,7 @@ const createSendToken = (user, statusCode, res) => {
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.cookie('jwt', token, cookieOptions);
+
   // Avoid showing the password fields in the output
   user.password = undefined;
   user.passwordConfirm = undefined;
@@ -66,10 +67,12 @@ exports.verify = catchAsync(async (req, res, next) => {
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
-  // 1) if request doesnt contain the Authorization Bearer token, return 401 Error
+ // 1) if request doesnt contain the Authorization Bearer token
+  //    or if its not in the cookie called jwt,
+  //    return 401 Error
   if (
-    req.headers.authorization === undefined ||
-    !req.headers.authorization.startsWith('Bearer ')
+    (req.headers.authorization !== undefined && !req.headers.authorization.startsWith('Bearer ')) ||
+    !req.cookies.jwt
   ) {
     throw new AppError(
       401,
@@ -77,8 +80,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // verify whether the token is valid
-  const token = req.headers.authorization.split(' ')[1];
+  let token = '';
+  if (req.cookies.jwt) token = req.cookies.jwt;
+  else {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
   const verify = promisify(jsonwebtoken.verify);
   const decoded = await verify(token, process.env.JWT_SECRET);
 
@@ -174,8 +181,8 @@ exports.passwordReset = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const { email, oldPassword, newPassword } = req.body;
-  if (!email || !oldPassword || !newPassword)
+  const { currentPassword, newPassword, passwordConfirm } = req.body;
+  if (!currentPassword || !newPassword || !passwordConfirm)
     throw new AppError(
       400,
       `email, oldPassword or newPassword is missing in request!!`
@@ -186,12 +193,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   if (!user) next(new AppError(404, `User doesnot exist`));
 
   // 2) Check if old password is valid
-  if (!(await bcrypt.compare(oldPassword, user.password)))
-    next(new AppError(401, `Invalid password. Provide a valid password`));
+  if (!(await bcrypt.compare(currentPassword, user.password)))
+    next(new AppError(401, `Invalid password!!`));
 
   // 3) Update the new password
   user.password = newPassword;
-  user.passwordConfirm = newPassword;
+  user.passwordConfirm = passwordConfirm;
   user.passwordChangedAt = Date.now();
   // User.findByIdAndUpdate will not work as the validator and middlewares of pre save() wont work
   // Mongodb cannot store the password in memory
@@ -200,3 +207,45 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // 4) Log user in, return a new JWT token
   createSendToken(user, 201, res);
 });
+
+exports.isLoggedIn = async (req, res, next) => {
+  // req.cookies is available due to the injection of the cookie parser middleware
+  if (req.cookies.jwt) {
+    const token = req.cookies.jwt;
+    try {
+      // verify token
+      const verify = promisify(jsonwebtoken.verify);
+      const decoded = await verify(token, process.env.JWT_SECRET);
+
+      // Check if user exists
+      const currentUser = await User.findById(decoded._id);
+      if (!currentUser) next();
+
+      // Check if user changed the password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) next();
+
+      // There is a logged in user
+      res.locals.user = currentUser;
+      return next();
+    } catch (error) {
+      console.log('Request doesnt have a valid JWT token!!');
+      next();
+    }
+  }
+  // Call the next handler only after all the checks are done
+  next();
+};
+
+exports.logout = (req, res, next) => {
+  try {
+    res.cookie('jwt', 'LoggedOut', {
+      expires: new Date(Date.now()),
+      httpOnly: true
+    });
+
+    return res.status(200).json({ status: 'success' });
+  } catch (error) {
+    console.error('Error while setting the cookie: jwt as LoggedOut!!');
+    next();
+  }
+};

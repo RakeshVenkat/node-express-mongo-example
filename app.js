@@ -5,8 +5,12 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const hpp = require('hpp');
+const pug = require('pug');
+const path = require('path');
+const cookieParser = require('cookie-parser')
 
 const app = express();
+const viewRouter = require('./routes/view');
 const baseRouter = require('./routes');
 const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
@@ -26,6 +30,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 // Body parser: Body larger than 10kb will not accespted
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser())
 
 // Data sanitization against NoSql query injection
 app.use(mongoSanitize());
@@ -60,7 +66,15 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter); // only apply to requests that begin with /api/
 
+// Inject the Pug templating engine
+app.set('views', path.join(`${__dirname}`, 'views'));
+app.set('view engine', 'pug');
+
 // 2) Routes
+// View
+app.use('/', viewRouter);
+
+// API
 app.use('/api/v1', baseRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

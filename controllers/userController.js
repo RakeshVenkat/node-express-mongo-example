@@ -22,7 +22,7 @@ exports.getMe = (req, res, next) => {
   next()
 }
 
-exports.updateMe = catchAsync(async (req, res, next) => {
+exports.updateMe = catchAsync(async (req, res, next) => { 
   const filteredObj = {};
   const allowedFields = ['name', 'email'];
   Object.keys(req.body).forEach((key) => {
