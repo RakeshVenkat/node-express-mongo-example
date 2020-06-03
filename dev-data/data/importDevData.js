@@ -42,7 +42,7 @@ mongoose
 const importData = async (Model, data) => {
   try {
     const docs = await Model.create(data, {validateBeforeSave: false});
-    console.log(`${docs.length} records successfully created in DB`);
+    //console.log(`${docs.length} records successfully created in DB`);
   } catch (error) {
     console.error(`Error while importing docs into db ${error}`);
   }
@@ -51,7 +51,7 @@ const importData = async (Model, data) => {
 const deleteData = async (Model) => {
   try {
     await Model.deleteMany();
-    console.log(`records successfully deleted`);
+    //console.log(`records successfully deleted`);
   } catch (error) {
     console.error(`Error while deleting the docs due to: ${error}`);
   }

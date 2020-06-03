@@ -107,7 +107,7 @@ const deleteTour = (req, res) => {
 /////////////////////////////////////////////////////
 // Middlewares
 const helloMiddleWare = (req, res, next) => {
-  console.log('Hello from middleware :) ');
+  //console.log('Hello from middleware :) ');
   next();
 };
 

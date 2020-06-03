@@ -36,7 +36,7 @@ exports.createTourV1 = async (req, res, next) => {
       // handling for empty result if page requested is unavailble: Not needed, hence commented
       /*     if (req.query.page) {
         const numTours = await Tour.countDocuments();
-        console.log(numTours, skip);
+        //console.log(numTours, skip);
         if (skip >= numTours) {
           throw new Error('Requested page is not available');
         }

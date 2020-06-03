@@ -134,7 +134,7 @@ tourSchema.pre('save', function (next) {
 
 // You can add more hooks or middlewares on the same event
 tourSchema.pre('save', function (next) {
-  console.log('Middleware: Before save(): will save document');
+  //console.log('Middleware: Before save(): will save document');
   next();
 });
 // Fetch the user records and embed into tour
@@ -147,7 +147,7 @@ tourSchema.pre('save', function (next) {
 
 // You can have a hook on the post event as well
 tourSchema.post('save', function (doc, next) {
-  console.log('Middleware: After save():');
+  //console.log('Middleware: After save():');
   next();
 });
 

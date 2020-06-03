@@ -8,6 +8,7 @@ const hpp = require('hpp');
 const pug = require('pug');
 const path = require('path');
 const cookieParser = require('cookie-parser')
+const compression = require('compression')
 
 const app = express();
 const viewRouter = require('./routes/view');
@@ -56,6 +57,8 @@ app.use(
     ],
   })
 );
+
+app.use(compression())
 
 // Rate limiting Middleware
 // Allow only 100 requests in total within a window of 15 mins for all routes under /api

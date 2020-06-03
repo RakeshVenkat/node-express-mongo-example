@@ -7,7 +7,7 @@ import { showAlert } from './alerts';
 export const login = async (email, password) => {
   try {
     const res = await axios({
-      url: 'http://localhost:3001/api/v1/auth/login',
+      url: '/api/v1/auth/login',
       method: 'POST',
       data: {
         email,
@@ -31,13 +31,13 @@ export const login = async (email, password) => {
 export const logout = async (req, res, next) => {
   try {
     const res = await axios({
-      url: `http://localhost:3001/api/v1/auth/logout`,
+      url: `/api/v1/auth/logout`,
       method: 'GET',
-    }); console.log('here:',location.pathname)
+    }); //console.log('here:',location.pathname)
     if (res.data && res.data.status === 'success') {
       if (location.pathname === '/about-me') {
         location.replace('/');
-      } else { console.log(location.pathname)
+      } else { //console.log(location.pathname)
         location.reload(true);
       }
 

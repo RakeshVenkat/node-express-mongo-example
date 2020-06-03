@@ -39,6 +39,6 @@ exports.account = catchAsync(async (req, res) => {
 });
 
 exports.updateUserData = catchAsync(async (req, res) => {
-  console.log(req.body)
+  //console.log(req.body)
 
 })

@@ -235,7 +235,7 @@ exports.isLoggedIn = async (req, res, next) => {
       res.locals.user = currentUser;
       return next();
     } catch (error) {
-      console.log('Request doesnt have a valid JWT token!!');
+      console.error('Request doesnt have a valid JWT token!!');
       next();
     }
   }
