@@ -39,6 +39,10 @@ mixin reviewCard(review)
 
 block content
     section.section-header
+        .header__hero
+            .header__hero-overlay &nbsp;
+            img.header__hero-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+
         .heading-box
             h1.heading-primary
                 span= tour.name
@@ -65,9 +69,10 @@ block content
             p.description__text= tour.summary
     section.section-pictures
         each image, index in tour.images
-            +pictureBox(image, index)
+            .picture-box
+                img.picture-box__img(src=`/img/tours/${image}`, alt=`${tour.name} ${index + 1}`, class=`picture-box__img--${index + 1}`)
     section.section-map
-            #map(data-locations=`${JSON.stringify(tour.locations)}`)
+        #map(data-locations=`${JSON.stringify(tour.locations)}`)
     section.section-reviews
         .reviews
             each review in tour.reviews

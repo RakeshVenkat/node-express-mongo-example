@@ -32,8 +32,15 @@ if (updateUserFormEl) {
 
     const name = e.target.name.value;
     const email = e.target.email.value;
+    //const photo = e.target.photo.files[0].name // Doesnt work!!
 
-    updateSettings('userData',{name, email});
+    // Create multi part form data
+    const form = new FormData()
+    form.append('name', name)
+    form.append('email', email)
+    form.append('photo', document.getElementById('photo').files[0])
+
+    updateSettings('userData',form);
   });
 }
 

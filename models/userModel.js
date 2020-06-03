@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-// NOTE:: DANGER BELOW (donot remove or uncomment) !! 
+// NOTE:: DANGER BELOW (donot remove or uncomment) !!
 // Doing a require of a Review model here causes `User` model from not being available in the Review Middleware functions.
 // const Review = require('./reviewModel')
 
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [isEmail, 'Please provide a valid email'],
   },
-  photo: String,
+  photo: { type: String, default: 'default.jpg' },
   password: {
     type: String,
     required: [true, 'Please provide a password'],

@@ -1,6 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
+
 const {
   createUser,
   getAllUsers,
@@ -9,7 +10,9 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
-  getMe
+  getMe,
+  uploadUserPhoto,
+  resizeUserPhoto
 } = require('../controllers/userController');
 const { protect, restrictTo } = require('../controllers/authController');
 
@@ -17,7 +20,7 @@ const { protect, restrictTo } = require('../controllers/authController');
 router.use(protect)
 
 router.route('/getMe').get(getMe, getUser) 
-router.route('/updateMe').patch(updateMe) 
+router.route('/updateMe').patch(uploadUserPhoto, resizeUserPhoto, updateMe) 
 router.route('/deleteMe').delete(deleteMe) 
 //router.patch('/updateMe', updateMe);
 

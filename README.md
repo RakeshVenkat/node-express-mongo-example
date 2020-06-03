@@ -15,8 +15,19 @@ While using form to submit events, dodnot use hyphen(-) in the name property of 
 e.target.<name> will fail when there is an hyphen
 Ex (dont):<input name="password-confirm"> 
 
+MULTER:
+    req.body -> doesnt contain the file.
+    req.file -> contains the information about the file
+
+FORMDATA:
+    new FormData().append(e.target.photo.files[0].name) deoesnt work !!
+    new FormData().append(document.getElementById('photo').files[0]) Works 
+Dodnot use the e.target to retreive the file when using multipart form data
+
 AXIOS:
 
+URL from REQUEST
+    ${req.protocol}://${req.get('host')} gets http://<hostname:port>
 
 ERROR RESPONSE FROM AXIOS
 catch(error){
@@ -37,3 +48,8 @@ catch(error){
 
 
 
+https://mailtrap.io/
+https://app.sendgrid.com/
+https://mailsac.com/
+
+TODO: testing sendgrid mail sendinfg is pendging due to sendgrid sender identity verifications process.
