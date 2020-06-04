@@ -16,8 +16,8 @@
 `npm start`
 
 ### How to access the app:
-[Via Localhost](http://localhost:3001/)
-[Heroku](https://serene-dusk-43370.herokuapp.com/)
+* [Localhost](http://localhost:3001/)
+* [Heroku](https://serene-dusk-43370.herokuapp.com/)
 
 ### Test User accounts
 * sophie@example.com / test1234
